@@ -36,7 +36,7 @@ Artifacts produced:
 See `scripts/run_engine.sh` for a wrapper that sets `PYTHONPATH` for you.
 
 ## Matrix contract (summary)
-Required columns: `comment_id`, `status`, `pdf_page`, `pdf_line_number`, `target_excerpt`, `comment_text`.
+Required columns (must be present): `comment_id`, `source_agency`, `comment_text`, `comment_response`, `status`, `revision_id`, `pdf_page`, `pdf_line_number`, `target_excerpt`, `target_section_heading`, `injection_text`, `injection_mode`, `anchor_confidence`, `notes`. Optional but preserved: `anchor_hint`, `docx_location_hint`.
 
 Status normalization:
 - Eligible for insertion: `READY`, `APPROVED`.
@@ -48,11 +48,12 @@ Validation rules:
 - Required columns must be present.
 - `comment_id` must be unique and non-empty.
 - `pdf_page` and `pdf_line_number` must be positive integers.
-- Eligible rows must have non-empty `target_excerpt` and `comment_text`.
+- Eligible rows must have non-empty `target_excerpt`, `comment_text`, `comment_response`, `target_section_heading`, `injection_text`, `injection_mode`, `source_agency`, `revision_id`.
+- `anchor_confidence`, when provided, must be numeric between 0 and 1.
 - Structured errors are emitted when validation fails.
 
 Output report fields:
-`comment_id, pdf_page, pdf_line_number, target_excerpt, result, reason, matched_pdf_text, matched_docx_text, matched_location, confidence`.
+`comment_id, pdf_page, pdf_line_number, target_excerpt, result, reason, matched_pdf_text, matched_docx_text, matched_location, confidence` (eligible rows are marked `stubbed` until real insertion lands).
 
 Full contract details live in `contracts/engine_contract.md`.
 

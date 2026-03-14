@@ -29,14 +29,26 @@ class OrchestrationResult:
 
 def _normalized_row(row: Mapping[str, str]) -> Dict[str, object]:
     status = validation.normalize_status(row.get("status", ""))
+    anchor_confidence_raw = (row.get("anchor_confidence") or "").strip()
+    try:
+        anchor_confidence = float(anchor_confidence_raw) if anchor_confidence_raw else ""
+    except ValueError:
+        anchor_confidence = ""
     return {
         "comment_id": (row.get("comment_id") or "").strip(),
+        "source_agency": (row.get("source_agency") or "").strip(),
+        "comment_response": (row.get("comment_response") or "").strip(),
+        "revision_id": (row.get("revision_id") or "").strip(),
         "status": status,
         "pdf_page": int((row.get("pdf_page") or "0").strip()),
         "pdf_line_number": int((row.get("pdf_line_number") or "0").strip()),
         "target_excerpt": (row.get("target_excerpt") or "").strip(),
+        "target_section_heading": (row.get("target_section_heading") or "").strip(),
         "comment_text": (row.get("comment_text") or "").strip(),
+        "injection_text": (row.get("injection_text") or "").strip(),
+        "injection_mode": (row.get("injection_mode") or "").strip(),
         "anchor_hint": (row.get("anchor_hint") or "").strip(),
+        "anchor_confidence": anchor_confidence,
     }
 
 
@@ -45,7 +57,7 @@ def _build_injection_records(rows: List[Dict[str, object]]) -> List[Dict[str, ob
     for row in rows:
         status = row["status"]
         eligible = status in ELIGIBLE_STATUSES
-        result = "pending" if eligible else "skipped"
+        result = "stubbed" if eligible else "skipped"
         reason = (
             "Insertion stubbed; awaiting PDF anchor resolution and DOCX comment insertion TODOs."
             if eligible

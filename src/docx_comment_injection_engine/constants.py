@@ -2,14 +2,22 @@ from __future__ import annotations
 
 REQUIRED_COLUMNS = [
     "comment_id",
+    "source_agency",
+    "comment_text",
+    "comment_response",
     "status",
+    "revision_id",
     "pdf_page",
     "pdf_line_number",
     "target_excerpt",
-    "comment_text",
+    "target_section_heading",
+    "injection_text",
+    "injection_mode",
+    "anchor_confidence",
+    "notes",
 ]
 
-OPTIONAL_COLUMNS = ["anchor_hint", "docx_location_hint", "notes"]
+OPTIONAL_COLUMNS = ["anchor_hint", "docx_location_hint"]
 
 ELIGIBLE_STATUSES = {"READY", "APPROVED"}
 SKIP_STATUSES = {"SKIP", "HOLD", "REJECTED"}

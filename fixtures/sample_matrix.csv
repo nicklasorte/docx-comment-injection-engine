@@ -1,4 +1,4 @@
-comment_id,status,pdf_page,pdf_line_number,target_excerpt,comment_text,anchor_hint
-CMT-001,READY,1,5,"Intro excerpt for alignment","Insert intro clarification","intro"
-CMT-002,SKIP,2,3,"Deferred excerpt","Hold for later review",""
-CMT-003,APPROVED,3,10,"Body excerpt","Add citation to data source","section-2"
+comment_id,source_agency,comment_text,comment_response,status,revision_id,pdf_page,pdf_line_number,target_excerpt,target_section_heading,injection_text,injection_mode,anchor_confidence,notes,anchor_hint
+CMT-001,Agency A,"Insert intro clarification","Accepted with minor edits",READY,rev-1,1,5,"Intro excerpt for alignment","Section 1: Introduction","Add intro clarification as a tracked comment","comment",0.92,"High priority","intro"
+CMT-002,Agency B,"Hold for later review","Not ready for insertion",SKIP,rev-2,2,3,"Deferred excerpt","Section 2: Background","Defer insertion","comment",,"Waiting on upstream decision",""
+CMT-003,Agency A,"Add citation to data source","Approved",APPROVED,rev-3,3,10,"Body excerpt","Section 3: Findings","Add citation to data source","comment",0.88,"","section-2"

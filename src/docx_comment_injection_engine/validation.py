@@ -42,6 +42,16 @@ def validate_required_files(matrix_path: Path, pdf_path: Path, docx_path: Path) 
 class MatrixValidator:
     def __init__(self, required_columns: Sequence[str] | None = None):
         self.required_columns = list(required_columns or REQUIRED_COLUMNS)
+        self._required_for_eligible = [
+            "target_excerpt",
+            "comment_text",
+            "comment_response",
+            "target_section_heading",
+            "injection_text",
+            "injection_mode",
+            "source_agency",
+            "revision_id",
+        ]
 
     def validate(self, rows: List[Dict[str, str]], fieldnames: List[str]) -> List[Mapping[str, object]]:
         errors: List[Mapping[str, object]] = []
@@ -97,7 +107,7 @@ class MatrixValidator:
             errors.extend(self._validate_positive_integer(row, idx, "pdf_line_number"))
 
             if status in ELIGIBLE_STATUSES:
-                for field in ("target_excerpt", "comment_text"):
+                for field in self._required_for_eligible:
                     if not (row.get(field) or "").strip():
                         errors.append(
                             {
@@ -107,6 +117,23 @@ class MatrixValidator:
                                 "message": f"{field} is required for eligible rows",
                             }
                         )
+
+            anchor_confidence_raw = (row.get("anchor_confidence") or "").strip()
+            if anchor_confidence_raw:
+                try:
+                    value = float(anchor_confidence_raw)
+                    if value < 0 or value > 1:
+                        raise ValueError
+                except ValueError:
+                    errors.append(
+                        {
+                            "type": "invalid_anchor_confidence",
+                            "row": idx,
+                            "field": "anchor_confidence",
+                            "value": anchor_confidence_raw,
+                            "message": "anchor_confidence must be a number between 0 and 1 when provided",
+                        }
+                    )
         return errors
 
     def _validate_positive_integer(self, row: Dict[str, str], idx: int, field: str) -> List[Mapping[str, object]]:
