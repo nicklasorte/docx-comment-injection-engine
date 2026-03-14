@@ -26,8 +26,12 @@ class ValidationTests(unittest.TestCase):
 
     def test_missing_required_column(self) -> None:
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as handle:
-            handle.write("comment_id,status,pdf_page,pdf_line_number,comment_text\n")
-            handle.write("C1,READY,1,1,Missing excerpt\n")
+            handle.write(
+                "comment_id,source_agency,comment_text,comment_response,status,revision_id,pdf_page,pdf_line_number,target_excerpt,injection_text,injection_mode,anchor_confidence,notes\n"
+            )
+            handle.write(
+                "C1,Agency A,Missing excerpt,Response,READY,rev-1,1,1,Excerpt text,Injection text,comment,0.5,Note\n"
+            )
             bad_matrix = Path(handle.name)
         with self.assertRaises(ValidationError) as ctx:
             validation.ensure_valid(bad_matrix, self.sample_pdf, self.sample_docx)
@@ -36,10 +40,14 @@ class ValidationTests(unittest.TestCase):
     def test_duplicate_comment_id(self) -> None:
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as handle:
             handle.write(
-                "comment_id,status,pdf_page,pdf_line_number,target_excerpt,comment_text\n"
+                "comment_id,source_agency,comment_text,comment_response,status,revision_id,pdf_page,pdf_line_number,target_excerpt,target_section_heading,injection_text,injection_mode,anchor_confidence,notes\n"
             )
-            handle.write("C1,READY,1,1,Excerpt,Text\n")
-            handle.write("C1,READY,2,2,Another,Text\n")
+            handle.write(
+                "C1,Agency A,Excerpt text,Response,READY,rev-1,1,1,Excerpt,Heading 1,Injection text,comment,0.5,Note\n"
+            )
+            handle.write(
+                "C1,Agency A,Another excerpt,Response,READY,rev-2,2,2,Another,Heading 2,Injection text,comment,0.5,Note\n"
+            )
             dup_matrix = Path(handle.name)
         with self.assertRaises(ValidationError) as ctx:
             validation.ensure_valid(dup_matrix, self.sample_pdf, self.sample_docx)
@@ -48,9 +56,11 @@ class ValidationTests(unittest.TestCase):
     def test_invalid_page_or_line(self) -> None:
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as handle:
             handle.write(
-                "comment_id,status,pdf_page,pdf_line_number,target_excerpt,comment_text\n"
+                "comment_id,source_agency,comment_text,comment_response,status,revision_id,pdf_page,pdf_line_number,target_excerpt,target_section_heading,injection_text,injection_mode,anchor_confidence,notes\n"
             )
-            handle.write("C1,READY,-1,0,Excerpt,Text\n")
+            handle.write(
+                "C1,Agency A,Excerpt text,Response,READY,rev-1,-1,0,Excerpt,Heading,Injection text,comment,0.5,Note\n"
+            )
             bad_numbers = Path(handle.name)
         with self.assertRaises(ValidationError) as ctx:
             validation.ensure_valid(bad_numbers, self.sample_pdf, self.sample_docx)
@@ -74,7 +84,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(result.eligible_count, 2)
         self.assertEqual(result.skipped_count, 1)
         ready_row = next(row for row in rows if row["comment_id"] == "CMT-001")
-        self.assertEqual(ready_row["result"], "pending")
+        self.assertEqual(ready_row["result"], "stubbed")
         skipped_row = next(row for row in rows if row["comment_id"] == "CMT-002")
         self.assertEqual(skipped_row["result"], "skipped")
         self.assertIn("not eligible", skipped_row["reason"])

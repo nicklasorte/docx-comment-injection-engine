@@ -1,4 +1,4 @@
 comment_id,pdf_page,pdf_line_number,target_excerpt,result,reason,matched_pdf_text,matched_docx_text,matched_location,confidence
-CMT-001,1,5,Intro excerpt for alignment,pending,"Insertion stubbed; awaiting PDF anchor resolution and DOCX comment insertion TODOs.",,,,
+CMT-001,1,5,Intro excerpt for alignment,stubbed,"Insertion stubbed; awaiting PDF anchor resolution and DOCX comment insertion TODOs.",,,,
 CMT-002,2,3,Deferred excerpt,skipped,"Status 'SKIP' is not eligible for insertion.",,,,
-CMT-003,3,10,Body excerpt,pending,"Insertion stubbed; awaiting PDF anchor resolution and DOCX comment insertion TODOs.",,,,
+CMT-003,3,10,Body excerpt,stubbed,"Insertion stubbed; awaiting PDF anchor resolution and DOCX comment insertion TODOs.",,,,
