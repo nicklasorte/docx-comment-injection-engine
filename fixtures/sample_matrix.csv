@@ -1,0 +1,4 @@
+comment_id,status,pdf_page,pdf_line_number,target_excerpt,comment_text,anchor_hint
+CMT-001,READY,1,5,"Intro excerpt for alignment","Insert intro clarification","intro"
+CMT-002,SKIP,2,3,"Deferred excerpt","Hold for later review",""
+CMT-003,APPROVED,3,10,"Body excerpt","Add citation to data source","section-2"
