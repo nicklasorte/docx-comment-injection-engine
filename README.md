@@ -2,6 +2,23 @@
 
 Governed MVP scaffold for injecting governed comments into DOCX files based on a resolution matrix anchored to a source PDF. The current implementation focuses on deterministic validation, orchestration shape, and audit/report generation; actual anchor resolution and Word comment insertion are stubbed and intentionally marked TODO.
 
+## Ecosystem context
+
+This engine is part of the **spectrum-systems** ecosystem.
+
+| Field | Value |
+|-------|-------|
+| `system_id` | `docx-comment-injection-engine` |
+| `repo_type` | `operational-engine` |
+| `architecture_layer` | `injection` |
+| `governance_source` | `spectrum-systems` |
+| Governing contract | `contracts/engine_contract.md` |
+| Governance declaration | `governance/governance-declaration.json` |
+| System manifest | `governance/system-manifest.json` |
+| Evaluation manifest | `eval/evaluation-manifest.json` |
+
+See `docs/repo-standardization-summary.md` for a full normalization record.
+
 ## MVP scope
 - Inputs: resolution matrix (CSV), source PDF, source DOCX.
 - Outputs: commented DOCX placeholder (copied from source), structured injection report, validation/audit artifacts.
@@ -11,10 +28,14 @@ Governed MVP scaffold for injecting governed comments into DOCX files based on a
 - `src/` – engine code and CLI entry point.
 - `tests/` – unit tests covering validation and report generation.
 - `fixtures/` – sample matrix/PDF/DOCX and expected report fixture.
+- `examples/` – minimal contract-aligned input/output examples.
 - `outputs/` – target directory for generated artifacts (ignored except for `.gitkeep`).
 - `contracts/` – local contract and schema notes.
 - `docs/` – architecture note and supporting docs.
+- `governance/` – machine-readable governance declaration and system manifest.
+- `eval/` – evaluation manifest scaffold.
 - `scripts/` – helper script for running the engine locally.
+- `.github/workflows/ci.yml` – CI: unit tests and governance validation.
 
 ## Quickstart
 Ensure Python 3.10+ is available.

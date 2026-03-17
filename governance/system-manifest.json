@@ -1,0 +1,30 @@
+{
+  "repo_name": "docx-comment-injection-engine",
+  "repo_type": "operational-engine",
+  "architecture_layer": "injection",
+  "system_id": "docx-comment-injection-engine",
+  "governance_source": "spectrum-systems",
+  "contracts_consumed": [
+    "contracts/engine_contract.md"
+  ],
+  "contracts_produced": [],
+  "artifacts_consumed": [
+    "resolution_matrix_csv",
+    "source_pdf",
+    "source_docx"
+  ],
+  "artifacts_produced": [
+    "commented_docx",
+    "injection_report_csv",
+    "validation_report_json"
+  ],
+  "artifact_roles": {
+    "resolution_matrix_csv": "consumes",
+    "source_pdf": "consumes",
+    "source_docx": "consumes",
+    "commented_docx": "produces",
+    "injection_report_csv": "produces",
+    "validation_report_json": "produces"
+  },
+  "version": "0.1.0"
+}

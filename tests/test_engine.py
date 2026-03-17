@@ -1,4 +1,5 @@
 import csv
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -104,6 +105,150 @@ class OrchestrationTests(unittest.TestCase):
             self.assertEqual(actual["comment_id"], expected["comment_id"])
             self.assertEqual(actual["result"], expected["result"])
             self.assertEqual(actual["reason"], expected["reason"])
+
+
+class GovernanceTests(unittest.TestCase):
+    """Validate governance artifacts exist and are structurally valid."""
+
+    GOVERNANCE_DIR = ROOT / "governance"
+    EVAL_DIR = ROOT / "eval"
+
+    GOVERNANCE_DECLARATION_REQUIRED_FIELDS = [
+        "system_id",
+        "implementation_repo",
+        "architecture_source",
+        "contract_pins",
+        "schema_pins",
+        "rule_version",
+        "prompt_set_hash",
+        "evaluation_manifest_path",
+        "last_evaluation_date",
+        "external_storage_policy",
+        "governance_declaration_version",
+    ]
+
+    SYSTEM_MANIFEST_REQUIRED_FIELDS = [
+        "repo_name",
+        "repo_type",
+        "architecture_layer",
+        "system_id",
+        "governance_source",
+        "contracts_consumed",
+        "contracts_produced",
+    ]
+
+    EVALUATION_MANIFEST_REQUIRED_FIELDS = [
+        "system_id",
+        "harness",
+        "fixture_paths",
+        "evidence_output_path",
+    ]
+
+    def _load_json(self, path: Path) -> dict:
+        self.assertTrue(path.exists(), f"Expected file not found: {path}")
+        with path.open() as handle:
+            return json.load(handle)
+
+    def test_governance_declaration_exists_and_is_valid(self) -> None:
+        data = self._load_json(self.GOVERNANCE_DIR / "governance-declaration.json")
+        missing = [f for f in self.GOVERNANCE_DECLARATION_REQUIRED_FIELDS if f not in data]
+        self.assertFalse(
+            missing,
+            f"governance-declaration.json missing required fields: {missing}",
+        )
+
+    def test_system_manifest_exists_and_is_valid(self) -> None:
+        data = self._load_json(self.GOVERNANCE_DIR / "system-manifest.json")
+        missing = [f for f in self.SYSTEM_MANIFEST_REQUIRED_FIELDS if f not in data]
+        self.assertFalse(
+            missing,
+            f"system-manifest.json missing required fields: {missing}",
+        )
+
+    def test_evaluation_manifest_exists_and_is_valid(self) -> None:
+        data = self._load_json(self.EVAL_DIR / "evaluation-manifest.json")
+        missing = [f for f in self.EVALUATION_MANIFEST_REQUIRED_FIELDS if f not in data]
+        self.assertFalse(
+            missing,
+            f"evaluation-manifest.json missing required fields: {missing}",
+        )
+
+    def test_evaluation_manifest_fixture_paths_exist(self) -> None:
+        data = self._load_json(self.EVAL_DIR / "evaluation-manifest.json")
+        for rel_path in data.get("fixture_paths", []):
+            self.assertTrue(
+                (ROOT / rel_path).exists(),
+                f"evaluation-manifest.json references missing fixture: {rel_path}",
+            )
+
+    def test_governance_declaration_contract_pins_exist(self) -> None:
+        data = self._load_json(self.GOVERNANCE_DIR / "governance-declaration.json")
+        for name, rel_path in data.get("contract_pins", {}).items():
+            self.assertTrue(
+                (ROOT / rel_path).exists(),
+                f"contract_pin '{name}' references missing file: {rel_path}",
+            )
+
+    def test_governance_declaration_evaluation_manifest_path_exists(self) -> None:
+        data = self._load_json(self.GOVERNANCE_DIR / "governance-declaration.json")
+        eval_path = data.get("evaluation_manifest_path", "")
+        if eval_path:
+            self.assertTrue(
+                (ROOT / eval_path).exists(),
+                f"evaluation_manifest_path '{eval_path}' does not exist",
+            )
+
+    def test_ci_workflow_exists(self) -> None:
+        ci_path = ROOT / ".github" / "workflows" / "ci.yml"
+        self.assertTrue(ci_path.exists(), f"CI workflow not found: {ci_path}")
+
+
+class ExamplesTests(unittest.TestCase):
+    """Validate contract-aligned examples are structurally consistent."""
+
+    EXAMPLES_DIR = ROOT / "examples"
+
+    def test_example_matrix_has_required_columns(self) -> None:
+        from docx_comment_injection_engine.constants import REQUIRED_COLUMNS
+
+        matrix_path = self.EXAMPLES_DIR / "example_matrix.csv"
+        self.assertTrue(matrix_path.exists(), f"Example matrix not found: {matrix_path}")
+        with matrix_path.open() as handle:
+            reader = csv.DictReader(handle)
+            fieldnames = reader.fieldnames or []
+        missing = [col for col in REQUIRED_COLUMNS if col not in fieldnames]
+        self.assertFalse(
+            missing,
+            f"example_matrix.csv missing required columns: {missing}",
+        )
+
+    def test_example_injection_report_has_required_fields(self) -> None:
+        report_path = self.EXAMPLES_DIR / "example_injection_report.csv"
+        self.assertTrue(report_path.exists(), f"Example injection report not found: {report_path}")
+        with report_path.open() as handle:
+            reader = csv.DictReader(handle)
+            fieldnames = reader.fieldnames or []
+        expected_fields = [
+            "comment_id",
+            "pdf_page",
+            "pdf_line_number",
+            "target_excerpt",
+            "result",
+            "reason",
+        ]
+        missing = [f for f in expected_fields if f not in fieldnames]
+        self.assertFalse(
+            missing,
+            f"example_injection_report.csv missing fields: {missing}",
+        )
+
+    def test_example_validation_report_is_valid_json(self) -> None:
+        report_path = self.EXAMPLES_DIR / "example_validation_report.json"
+        self.assertTrue(report_path.exists(), f"Example validation report not found: {report_path}")
+        with report_path.open() as handle:
+            data = json.load(handle)
+        self.assertIn("valid", data)
+        self.assertIn("errors", data)
 
 
 if __name__ == "__main__":

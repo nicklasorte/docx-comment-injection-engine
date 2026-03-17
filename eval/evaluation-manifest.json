@@ -1,0 +1,15 @@
+{
+  "system_id": "docx-comment-injection-engine",
+  "evaluation_version": "0.1.0",
+  "harness": "tests/test_engine.py",
+  "fixture_paths": [
+    "fixtures/sample_matrix.csv",
+    "fixtures/sample_source.pdf",
+    "fixtures/sample_source.docx",
+    "fixtures/expected_injection_report.csv"
+  ],
+  "evidence_output_path": "outputs/",
+  "evaluation_status": "scaffolded",
+  "last_run_date": null,
+  "notes": "Evaluation harness uses Python unittest. Full end-to-end evaluation deferred pending PDF anchor resolution and DOCX insertion implementation."
+}
