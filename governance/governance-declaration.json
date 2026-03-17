@@ -1,0 +1,15 @@
+{
+  "system_id": "docx-comment-injection-engine",
+  "implementation_repo": "nicklasorte/docx-comment-injection-engine",
+  "architecture_source": "spectrum-systems",
+  "contract_pins": {
+    "engine_contract": "contracts/engine_contract.md"
+  },
+  "schema_pins": {},
+  "rule_version": "0.1.0",
+  "prompt_set_hash": "prompt-f-operational-engine-standardization",
+  "evaluation_manifest_path": "eval/evaluation-manifest.json",
+  "last_evaluation_date": "2026-03-17",
+  "external_storage_policy": "none",
+  "governance_declaration_version": "1.0.0"
+}

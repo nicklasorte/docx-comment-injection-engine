@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Run unit tests
+        run: |
+          export PYTHONPATH=src
+          python -m unittest discover -s tests -v
+
+  validate-governance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Validate governance declaration
+        run: |
+          python - <<'EOF'
+          import json, sys, pathlib
+
+          REQUIRED_FIELDS = [
+              "system_id",
+              "implementation_repo",
+              "architecture_source",
+              "contract_pins",
+              "schema_pins",
+              "rule_version",
+              "prompt_set_hash",
+              "evaluation_manifest_path",
+              "last_evaluation_date",
+              "external_storage_policy",
+              "governance_declaration_version",
+          ]
+
+          path = pathlib.Path("governance/governance-declaration.json")
+          if not path.exists():
+              print(f"ERROR: {path} not found", file=sys.stderr)
+              sys.exit(1)
+
+          data = json.loads(path.read_text())
+          missing = [f for f in REQUIRED_FIELDS if f not in data]
+          if missing:
+              print(f"ERROR: governance-declaration.json missing fields: {missing}", file=sys.stderr)
+              sys.exit(1)
+
+          print("governance-declaration.json: OK")
+          EOF
+
+      - name: Validate system manifest
+        run: |
+          python - <<'EOF'
+          import json, sys, pathlib
+
+          REQUIRED_FIELDS = [
+              "repo_name",
+              "repo_type",
+              "architecture_layer",
+              "system_id",
+              "governance_source",
+              "contracts_consumed",
+              "contracts_produced",
+          ]
+
+          path = pathlib.Path("governance/system-manifest.json")
+          if not path.exists():
+              print(f"ERROR: {path} not found", file=sys.stderr)
+              sys.exit(1)
+
+          data = json.loads(path.read_text())
+          missing = [f for f in REQUIRED_FIELDS if f not in data]
+          if missing:
+              print(f"ERROR: system-manifest.json missing fields: {missing}", file=sys.stderr)
+              sys.exit(1)
+
+          print("system-manifest.json: OK")
+          EOF
+
+      - name: Validate evaluation manifest
+        run: |
+          python - <<'EOF'
+          import json, sys, pathlib
+
+          path = pathlib.Path("eval/evaluation-manifest.json")
+          if not path.exists():
+              print(f"ERROR: {path} not found", file=sys.stderr)
+              sys.exit(1)
+
+          data = json.loads(path.read_text())
+          required = ["system_id", "harness", "fixture_paths", "evidence_output_path"]
+          missing = [f for f in required if f not in data]
+          if missing:
+              print(f"ERROR: evaluation-manifest.json missing fields: {missing}", file=sys.stderr)
+              sys.exit(1)
+
+          # Verify referenced paths exist
+          errors = []
+          for fp in data.get("fixture_paths", []):
+              if not pathlib.Path(fp).exists():
+                  errors.append(f"fixture path not found: {fp}")
+          if errors:
+              for e in errors:
+                  print(f"ERROR: {e}", file=sys.stderr)
+              sys.exit(1)
+
+          print("evaluation-manifest.json: OK")
+          EOF
+
+      - name: Validate contract path referenced in governance declaration
+        run: |
+          python - <<'EOF'
+          import json, sys, pathlib
+
+          decl = json.loads(pathlib.Path("governance/governance-declaration.json").read_text())
+          errors = []
+          for name, rel_path in decl.get("contract_pins", {}).items():
+              if not pathlib.Path(rel_path).exists():
+                  errors.append(f"contract_pin '{name}' references missing path: {rel_path}")
+          if errors:
+              for e in errors:
+                  print(f"ERROR: {e}", file=sys.stderr)
+              sys.exit(1)
+
+          eval_path = decl.get("evaluation_manifest_path", "")
+          if eval_path and not pathlib.Path(eval_path).exists():
+              print(f"ERROR: evaluation_manifest_path '{eval_path}' does not exist", file=sys.stderr)
+              sys.exit(1)
+
+          print("Contract and evaluation paths: OK")
+          EOF

@@ -1,0 +1,3 @@
+comment_id,pdf_page,pdf_line_number,target_excerpt,result,reason,matched_pdf_text,matched_docx_text,matched_location,confidence
+EX-001,1,4,The scope of this document covers...,stubbed,"Insertion stubbed; awaiting PDF anchor resolution and DOCX comment insertion TODOs.",,,,
+EX-002,2,7,Background on prior work...,skipped,"Status 'SKIP' is not eligible for insertion.",,,,

@@ -1,0 +1,3 @@
+comment_id,source_agency,comment_text,comment_response,status,revision_id,pdf_page,pdf_line_number,target_excerpt,target_section_heading,injection_text,injection_mode,anchor_confidence,notes,anchor_hint
+EX-001,Example Agency,"Clarify the scope statement","Accepted","READY","rev-1",1,4,"The scope of this document covers...","Section 1: Scope","Add scope clarification as a tracked comment","comment",0.90,"Minimal example — eligible row",""
+EX-002,Example Agency,"Defer until next revision","Not ready","SKIP","rev-2",2,7,"Background on prior work...","Section 2: Background","Defer insertion","comment",,"Minimal example — skipped row",""
